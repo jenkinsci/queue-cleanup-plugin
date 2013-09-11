@@ -33,7 +33,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     
     @Override
     public long getRecurrencePeriod() {
-        return QUEUE_CLEANUP_PERIOD*MIN;
+        return QUEUE_CLEANUP_PERIOD*HOUR;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
         Queue queue = Jenkins.getInstance().getQueue();
         Queue.Item[] items = queue.getItems();
         long currTime = System.currentTimeMillis();
-        long timeoutMillis = getDescriptor().getTimeout()*MIN;
+        long timeoutMillis = getDescriptor().getTimeout()*HOUR;
         String pattern = getDescriptor().getItemPattern();
         for(Queue.Item item : items) {
             long inQueue = currTime - item.getInQueueSince();
