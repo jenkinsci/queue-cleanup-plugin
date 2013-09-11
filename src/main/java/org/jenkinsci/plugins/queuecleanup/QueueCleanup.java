@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.queueclenup;
+package org.jenkinsci.plugins.queuecleanup;
 
 import hudson.Extension;
 import hudson.model.Describable;
