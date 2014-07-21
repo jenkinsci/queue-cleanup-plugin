@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.queuecleanup;
 
 import hudson.Extension;
+import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.PeriodicWork;
 import hudson.model.Descriptor;
@@ -17,6 +18,8 @@ import org.kohsuke.stapler.StaplerRequest;
 @Extension
 public class QueueCleanup extends PeriodicWork implements Describable<QueueCleanup> {
 
+    private static final String PERIOD_KEY = QueueCleanup.class.getName()+".period";
+
     private static final Logger LOGGER = Logger.getLogger(QueueCleanup.class.getName());
 
     /**
@@ -27,9 +30,9 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     static {
         Integer period = new Integer(24);
         try {
-             period = new Integer(System.getProperty(QueueCleanup.class.getName()+".period",period.toString()));
+             period = new Integer(System.getProperty(PERIOD_KEY, period.toString()));
         } catch(NumberFormatException e) {
-             LOGGER.warning(String.format("Cannot convert string %s to integer, using dafault %d", System.getProperty(QueueCleanup.class.getName()+".period"), period));
+             LOGGER.warning(String.format("Cannot convert string %s to integer, using dafault %d", System.getProperty(PERIOD_KEY), period));
         } finally {
             QUEUE_CLEANUP_PERIOD = period;
         }
@@ -42,17 +45,26 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
 
     @Override
     protected void doRun() throws Exception {
-        LOGGER.log(Level.INFO, "Queue clenaup started. Timeout is " + getDescriptor().getTimeout());
+        String pattern = getDescriptor().getItemPattern();
+        final int timeout = getDescriptor().getTimeout();
+        long timeoutMillis = timeout*HOUR;
+
+        LOGGER.log(Level.INFO,
+                "Queue clenaup started. Max time to wait is {0} hours. Pattern is {1}",
+                new String[] {Integer.toString(timeout), pattern}
+        );
+
         Queue queue = Jenkins.getInstance().getQueue();
         Queue.Item[] items = queue.getItems();
         long currTime = System.currentTimeMillis();
-        long timeoutMillis = getDescriptor().getTimeout()*HOUR;
-        String pattern = getDescriptor().getItemPattern();
         for(Queue.Item item : items) {
             long inQueue = currTime - item.getInQueueSince();
             if(inQueue > timeoutMillis && item.task.getDisplayName().matches(pattern)) {
                 queue.cancel(item);
-                LOGGER.log(Level.WARNING, "Item '{}'removed from queue after", new String[] {item.task.getFullDisplayName()});
+                LOGGER.log(Level.WARNING,
+                        "Item {0} removed from queue after {1}",
+                        new String[] {item.task.getFullDisplayName(), Util.getTimeSpanString(inQueue)}
+                );
             }
         }
     }
