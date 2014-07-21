@@ -29,13 +29,19 @@ import hudson.model.Describable;
 import hudson.model.PeriodicWork;
 import hudson.model.Descriptor;
 import hudson.model.Queue;
+import hudson.util.FormValidation;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 @Extension
@@ -99,7 +105,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     @Extension
     public static final class DescriptorImpl extends Descriptor<QueueCleanup> {
 
-        private int timeout = 24; //task timeout in the queue - in hours
+        private int timeout = 24;
         private String itemPattern = ".*";
 
         public DescriptorImpl() {
@@ -108,24 +114,59 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
         }
 
         public int getTimeout() {
-            return timeout;
+
+            return (timeout < 1) ? 24 : timeout;
         }
 
         public String getItemPattern() {
+            try {
+
+                Pattern.compile(itemPattern);
+            } catch (PatternSyntaxException ex) {
+
+                return ".*";
+            }
             return itemPattern;
         }
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             try {
-                this.timeout = new Integer(req.getParameter("queueCleanup.timeout"));
+                this.timeout = new Integer(formData.getString("timeout"));
             } catch(NumberFormatException e) {
-                throw new FormException("Cannot convert to integer - timeout has to be integer!", "timeout");
+                this.timeout = 24;
             }
-            this.itemPattern = req.getParameter("queueCleanup.itemPattern");
+            this.itemPattern = formData.getString("itemPattern");
 
             save();
             return true;
+        }
+
+        @Restricted(NoExternalUse.class)
+        public FormValidation doCheckItemPattern(@QueryParameter String itemPattern) {
+            try {
+
+                Pattern.compile(itemPattern);
+                return FormValidation.ok();
+            } catch (PatternSyntaxException ex) {
+
+                // Wrap exception message to <pre> tag as the error messages
+                // uses position indicator (^) prefixed with spaces which work
+                // with monospace fonts only.
+                return FormValidation.errorWithMarkup("Not a regular expression: <pre>" + ex.getMessage() + "</pre>");
+            }
+        }
+
+        @Restricted(NoExternalUse.class)
+        public FormValidation doCheckTimeout(@QueryParameter String timeout) {
+            try {
+
+                if (Integer.parseInt(timeout) > 0) return FormValidation.ok();
+            } catch (NumberFormatException e) {
+                // Fallthrough
+            }
+
+            return FormValidation.error("Not a positive number");
         }
 
         @Override
