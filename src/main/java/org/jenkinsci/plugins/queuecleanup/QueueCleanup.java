@@ -77,7 +77,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     public static final class DescriptorImpl extends Descriptor<QueueCleanup> {
 
         private int timeout = 24; //task timeout in the queue - in hours
-        private String itemPattern = "*";
+        private String itemPattern = ".*";
 
         public DescriptorImpl() {
             super(QueueCleanup.class);
