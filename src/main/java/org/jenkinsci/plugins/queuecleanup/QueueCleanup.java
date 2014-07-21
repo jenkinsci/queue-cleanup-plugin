@@ -20,12 +20,12 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     private static final Logger LOGGER = Logger.getLogger(QueueCleanup.class.getName());
 
     /**
-     * Check period in minutes.
+     * Check period in hours.
      */
     private static final Integer QUEUE_CLEANUP_PERIOD;
 
     static {
-        Integer period = new Integer(1440); // default 24 hours
+        Integer period = new Integer(24);
         try {
              period = new Integer(System.getProperty(QueueCleanup.class.getName()+".period",period.toString()));
         } catch(NumberFormatException e) {
