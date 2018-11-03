@@ -57,7 +57,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     private static final Integer QUEUE_CLEANUP_PERIOD;
 
     static {
-        Integer period = new Integer(24);
+        Integer period = new Integer(1);
         try {
              period = new Integer(System.getProperty(PERIOD_KEY, period.toString()));
         } catch(NumberFormatException e) {
