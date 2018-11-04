@@ -49,10 +49,8 @@
   </pluginRepositories>
 
   <properties>
-    <properties>
-      <jenkins.version>1.625.3</jenkins.version>
-      <java.level>7</java.level>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <jenkins.version>1.625.3</jenkins.version>
+    <java.level>7</java.level>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
