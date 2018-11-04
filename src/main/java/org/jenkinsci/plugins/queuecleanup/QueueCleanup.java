@@ -57,9 +57,9 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     private static final Integer QUEUE_CLEANUP_PERIOD;
 
     static {
-        Integer period = new Integer(1);
+        Integer period = Integer.valueOf(1);
         try {
-             period = new Integer(System.getProperty(PERIOD_KEY, period.toString()));
+             period = Integer.valueOf(System.getProperty(PERIOD_KEY, period.toString()));
         } catch(NumberFormatException e) {
              LOGGER.warning(String.format("Cannot convert string %s to integer, using dafault %d", System.getProperty(PERIOD_KEY), period));
         } finally {
@@ -83,23 +83,26 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
                 new String[] {Integer.toString(timeout), pattern}
         );
 
-        Queue queue = Jenkins.getInstance().getQueue();
-        Queue.Item[] items = queue.getItems();
-        long currTime = System.currentTimeMillis();
-        for(Queue.Item item : items) {
-            long inQueue = currTime - item.getInQueueSince();
-            if(inQueue > timeoutMillis && item.task.getDisplayName().matches(pattern)) {
-                queue.cancel(item);
-                LOGGER.log(Level.WARNING,
-                        "Item {0} removed from queue after {1}",
-                        new String[] {item.task.getFullDisplayName(), Util.getTimeSpanString(inQueue)}
-                );
+        Queue queue = Jenkins.getActiveInstance().getQueue();
+        if (queue != null) {
+            Queue.Item[] items = queue.getItems();
+            long currTime = System.currentTimeMillis();
+            for (Queue.Item item : items) {
+                long inQueue = currTime - item.getInQueueSince();
+                if (inQueue > timeoutMillis && item.task.getDisplayName().matches(pattern)) {
+                    queue.cancel(item);
+                    LOGGER.log(Level.WARNING,
+                            "Item {0} removed from queue after {1}",
+                            new String[]{item.task.getFullDisplayName(), Util.getTimeSpanString(inQueue)}
+                    );
+                }
             }
         }
     }
 
+    @Override
     public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl)Jenkins.getInstance().getDescriptorOrDie(getClass());
+        return (DescriptorImpl)Jenkins.getActiveInstance().getDescriptorOrDie(getClass());
     }
 
     @Extension
@@ -132,7 +135,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             try {
-                this.timeout = new Integer(formData.getString("timeout"));
+                this.timeout = Integer.parseInt(formData.getString("timeout"));
             } catch(NumberFormatException e) {
                 this.timeout = 24;
             }
