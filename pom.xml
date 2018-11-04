@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.509.2</version><!-- which version of Jenkins is this plugin built against? -->
+    <version>3.25</version><!-- which version of Jenkins is this plugin built against? -->
   </parent>
 
   <groupId>org.jenkins-ci.plugins</groupId>
@@ -12,12 +12,17 @@
   <packaging>hpi</packaging>
   <name>Queue cleanup Plugin</name>
   <description>Remove stalled items waiting in Jenkins queue</description>
-  <url>http://wiki.jenkins-ci.org/display/JENKINS/Queue+Cleanup+Plugin</url>
+  <url>https://wiki.jenkins-ci.org/display/JENKINS/Queue+Cleanup+Plugin</url>
 
   <developers>
     <developer>
       <id>vjuranek</id>
       <name>Vojtech Juranek</name>
+    </developer>
+    <developer>
+      <id>runzexia</id>
+      <name>Runze Xia</name>
+      <email>root@junwuhui.cn</email>
     </developer>
   </developers>
 
@@ -44,10 +49,8 @@
   </pluginRepositories>
 
   <properties>
-    <!--
-      explicitly specifying the latest version here because one we get from the parent POM
-      tends to lag behind a bit
-    -->
-    <maven-hpi-plugin.version>1.96</maven-hpi-plugin.version>
+    <jenkins.version>1.625.3</jenkins.version>
+    <java.level>7</java.level>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
