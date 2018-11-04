@@ -1,0 +1,6 @@
+<?jelly escape-by-default='true'?>
+<div>
+    Remove stalled items waiting in Jenkins queue.
+    Plugin allows administrator to configure queue wait timeout and item regex pattern.
+    All items matching pattern and waiting longer than timeout hours will be removed from the queue.
+</div>
