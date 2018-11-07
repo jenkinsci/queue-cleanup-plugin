@@ -6,6 +6,7 @@
     <version>3.25</version><!-- which version of Jenkins is this plugin built against? -->
   </parent>
 
+
   <groupId>org.jenkins-ci.plugins</groupId>
   <artifactId>queue-cleanup</artifactId>
   <version>1.3-SNAPSHOT</version>
@@ -32,7 +33,7 @@
     <url>https://github.com/jenkinsci/queue-cleanup-plugin</url>
     <tag>HEAD</tag>
   </scm>
-  
+
 
   <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
   <repositories>
@@ -50,8 +51,16 @@
   </pluginRepositories>
 
   <properties>
-    <jenkins.version>1.625.3</jenkins.version>
-    <java.level>7</java.level>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jenkins.version>2.60.3</jenkins.version>
+    <java.level>8</java.level>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.jenkins</groupId>
+      <artifactId>configuration-as-code</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>
