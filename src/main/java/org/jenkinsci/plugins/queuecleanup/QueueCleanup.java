@@ -39,6 +39,7 @@ import java.util.regex.PatternSyntaxException;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
+import org.jenkinsci.Symbol;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -46,6 +47,7 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 @Extension
+@Symbol("queue-cleanup")
 public class QueueCleanup extends PeriodicWork implements Describable<QueueCleanup> {
 
     private static final String PERIOD_KEY = QueueCleanup.class.getName()+".period";
