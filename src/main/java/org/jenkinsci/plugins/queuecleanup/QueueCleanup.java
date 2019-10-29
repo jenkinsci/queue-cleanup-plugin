@@ -57,12 +57,12 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     /**
      * Check period in hours.
      */
-    private static final Integer QUEUE_CLEANUP_PERIOD;
+    private static final Float QUEUE_CLEANUP_PERIOD;
 
     static {
-        Integer period = Integer.valueOf(1);
+        Float period = 0.017f; // 1.02 minutes
         try {
-             period = Integer.valueOf(System.getProperty(PERIOD_KEY, period.toString()));
+             period = Float.valueOf(System.getProperty(PERIOD_KEY, period.toString()));
         } catch(NumberFormatException e) {
              LOGGER.warning(String.format("Cannot convert string %s to integer, using dafault %d", System.getProperty(PERIOD_KEY), period));
         } finally {
@@ -72,18 +72,18 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
 
     @Override
     public long getRecurrencePeriod() {
-        return QUEUE_CLEANUP_PERIOD*HOUR;
+        return ((long)(QUEUE_CLEANUP_PERIOD*Float.valueOf(HOUR)));
     }
 
     @Override
     protected void doRun() throws Exception {
         String pattern = getDescriptor().getItemPattern();
-        final int timeout = getDescriptor().getTimeout();
-        long timeoutMillis = timeout*HOUR;
+        final float timeout = getDescriptor().getTimeout();
+        long timeoutMillis = (long)(timeout*Float.valueOf(HOUR));
 
         LOGGER.log(Level.INFO,
                 "Queue clenaup started. Max time to wait is {0} hours. Pattern is {1}",
-                new String[] {Integer.toString(timeout), pattern}
+                new String[] {Float.toString(timeout), pattern}
         );
 
         Queue queue = Jenkins.getActiveInstance().getQueue();
@@ -92,7 +92,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
             long currTime = System.currentTimeMillis();
             for (Queue.Item item : items) {
                 long inQueue = currTime - item.getInQueueSince();
-                if (inQueue > timeoutMillis && item.task.getDisplayName().matches(pattern)) {
+                if (inQueue > timeoutMillis && item.task.getFullDisplayName().matches(pattern)) {
                     queue.cancel(item);
                     LOGGER.log(Level.WARNING,
                             "Item {0} removed from queue after {1}",
@@ -111,17 +111,17 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     @Extension
     public static final class DescriptorImpl extends Descriptor<QueueCleanup> {
 
-        private int timeout = 24;
-        private String itemPattern = ".*";
+        private float timeout = 24f;
+        private String itemPattern = "a^";
 
         public DescriptorImpl() {
             super(QueueCleanup.class);
             load();
         }
 
-        public int getTimeout() {
+        public float getTimeout() {
 
-            return (timeout < 1) ? 24 : timeout;
+            return (timeout > 0.005) ? timeout : 24f;
         }
 
         public String getItemPattern() {
@@ -130,7 +130,8 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
                 Pattern.compile(itemPattern);
             } catch (PatternSyntaxException ex) {
 
-                return ".*";
+                LOGGER.warning("Invalid pattern; To be on the safe side, not matching any jobs");
+                return "a^";
             }
             return itemPattern;
         }
@@ -141,16 +142,16 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
         }
 
         @DataBoundSetter
-        public void setTimeout(int timeout) {
+        public void setTimeout(float timeout) {
             this.timeout = timeout;
         }
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             try {
-                this.timeout = Integer.parseInt(formData.getString("timeout"));
+                this.timeout = Float.parseFloat(formData.getString("timeout"));
             } catch(NumberFormatException e) {
-                this.timeout = 24;
+                this.timeout = 24f;
             }
             this.itemPattern = formData.getString("itemPattern");
 
@@ -177,12 +178,12 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
         public FormValidation doCheckTimeout(@QueryParameter String timeout) {
             try {
 
-                if (Integer.parseInt(timeout) > 0) return FormValidation.ok();
+                if (Float.parseFloat(timeout) > 0.005) return FormValidation.ok();
             } catch (NumberFormatException e) {
                 // Fallthrough
             }
 
-            return FormValidation.error("Not a positive number");
+            return FormValidation.error("Must be a floating point number greater than 0.005");
         }
 
         @Override
