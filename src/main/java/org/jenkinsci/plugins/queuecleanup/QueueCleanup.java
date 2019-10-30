@@ -64,7 +64,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
         try {
              period = Float.valueOf(System.getProperty(PERIOD_KEY, period.toString()));
         } catch(NumberFormatException e) {
-             LOGGER.warning(String.format("Cannot convert string %s to integer, using dafault %d", System.getProperty(PERIOD_KEY), period));
+             LOGGER.warning(String.format("Cannot convert string %s to integer, using dafault %f", System.getProperty(PERIOD_KEY), period));
         } finally {
             QUEUE_CLEANUP_PERIOD = period;
         }
