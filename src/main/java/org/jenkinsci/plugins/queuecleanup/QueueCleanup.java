@@ -77,13 +77,13 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
 
     @Override
     protected void doRun() throws Exception {
-        String pattern = getDescriptor().getItemPattern();
+        String regex = getDescriptor().getItemRegex();
         final int timeout = getDescriptor().getTimeout();
         long timeoutMillis = timeout*HOUR;
 
         LOGGER.log(Level.INFO,
-                "Queue clenaup started. Max time to wait is {0} hours. Pattern is {1}",
-                new String[] {Integer.toString(timeout), pattern}
+                "Queue clenaup started. Max time to wait is {0} hours. Regex is {1}",
+                new String[] {Integer.toString(timeout), regex}
         );
 
         Queue queue = Jenkins.getActiveInstance().getQueue();
@@ -92,7 +92,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
             long currTime = System.currentTimeMillis();
             for (Queue.Item item : items) {
                 long inQueue = currTime - item.getInQueueSince();
-                if (inQueue > timeoutMillis && item.task.getDisplayName().matches(pattern)) {
+                if (inQueue > timeoutMillis && item.task.getDisplayName().matches(regex)) {
                     queue.cancel(item);
                     LOGGER.log(Level.WARNING,
                             "Item {0} removed from queue after {1}",
@@ -112,7 +112,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
     public static final class DescriptorImpl extends Descriptor<QueueCleanup> {
 
         private int timeout = 24;
-        private String itemPattern = ".*";
+        private String itemRegex = ".*";
 
         public DescriptorImpl() {
             super(QueueCleanup.class);
@@ -124,20 +124,20 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
             return (timeout < 1) ? 24 : timeout;
         }
 
-        public String getItemPattern() {
-            try {
-
-                Pattern.compile(itemPattern);
-            } catch (PatternSyntaxException ex) {
-
-                return ".*";
-            }
-            return itemPattern;
+        public String getItemRegex() {
+            return itemRegex;
         }
 
         @DataBoundSetter
-        public void setItemPattern(String itemPattern) {
-            this.itemPattern = itemPattern;
+        public void setItemRegex(String itemRegex) {
+		try {
+
+                Pattern.compile(itemRegex);
+		this.itemRegex = itemRegex;
+            } catch (PatternSyntaxException ex) {
+			//sets nothing
+            }
+            
         }
 
         @DataBoundSetter
@@ -152,17 +152,17 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
             } catch(NumberFormatException e) {
                 this.timeout = 24;
             }
-            this.itemPattern = formData.getString("itemPattern");
+            this.itemRegex = formData.getString("itemRegex");
 
             save();
             return true;
         }
 
         @Restricted(NoExternalUse.class)
-        public FormValidation doCheckItemPattern(@QueryParameter String itemPattern) {
+        public FormValidation doCheckItemRegex(@QueryParameter String itemRegex) {
             try {
 
-                Pattern.compile(itemPattern);
+                Pattern.compile(itemRegex);
                 return FormValidation.ok();
             } catch (PatternSyntaxException ex) {
 

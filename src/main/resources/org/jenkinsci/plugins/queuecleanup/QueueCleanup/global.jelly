@@ -27,7 +27,7 @@ THE SOFTWARE.
     <f:entry field="timeout" title="Timeout" description="Timeout of queue items in hours">
       <f:textbox value="${descriptor.timeout}"/>
     </f:entry>
-    <f:entry field="itemPattern" title="Item name pattern" description="Pattern to which items cleanup should be applied">
+    <f:entry field="itemRegex" title="Item name regex" description="Regex to which items cleanup should be applied">
       <f:textbox value="${descriptor.itemPattern}"/>
     </f:entry>
   </f:section>

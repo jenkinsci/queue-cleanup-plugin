@@ -1,4 +1,4 @@
 unclassified:
   queuecleanup:
     timeout: 123
-    itemPattern: "^abc.*"
+    itemRegex: "^abc.*"
