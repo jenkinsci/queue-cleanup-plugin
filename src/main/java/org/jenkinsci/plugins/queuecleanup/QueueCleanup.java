@@ -169,7 +169,7 @@ public class QueueCleanup extends PeriodicWork implements Describable<QueueClean
                 // Wrap exception message to <pre> tag as the error messages
                 // uses position indicator (^) prefixed with spaces which work
                 // with monospace fonts only.
-                return FormValidation.errorWithMarkup("Not a regular expression: <pre>" + ex.getMessage() + "</pre>");
+                return FormValidation.error("Not a regular expression: " + ex.getMessage());
             }
         }
 
