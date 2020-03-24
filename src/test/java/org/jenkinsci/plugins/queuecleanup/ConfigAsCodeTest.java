@@ -14,7 +14,7 @@ public class ConfigAsCodeTest {
     @Test
     public void should_support_configuration_as_code() throws Exception {
         ConfigurationAsCode.get().configure(ConfigAsCodeTest.class.getResource("configuration-as-code.yml").toString());
-        Assert.assertEquals(((QueueCleanup.DescriptorImpl)r.jenkins.getDescriptor(QueueCleanup.class)).getTimeout(),123);
+        Assert.assertEquals(((QueueCleanup.DescriptorImpl)r.jenkins.getDescriptor(QueueCleanup.class)).getTimeout(),123f,0.01);
         Assert.assertEquals(((QueueCleanup.DescriptorImpl)r.jenkins.getDescriptor(QueueCleanup.class)).getItemPattern(),"^abc.*");
     }
 }
