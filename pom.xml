@@ -9,7 +9,7 @@
 
   <groupId>org.jenkins-ci.plugins</groupId>
   <artifactId>queue-cleanup</artifactId>
-  <version>1.4</version>
+  <version>1.5-SNAPSHOT</version>
   <packaging>hpi</packaging>
   <name>Queue cleanup Plugin</name>
   <description>Remove stalled items waiting in Jenkins queue</description>
@@ -31,7 +31,7 @@
     <connection>scm:git:git://github.com/jenkinsci/queue-cleanup-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/queue-cleanup-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/queue-cleanup-plugin</url>
-    <tag>queue-cleanup-1.4</tag>
+    <tag>HEAD</tag>
   </scm>
 
 
